@@ -1,28 +1,80 @@
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 
-exports.register = async (req, res, next) => {
+const generateToken = (user) => {
+  return jwt.sign(
+    { _id: user._id },
+    process.env.JWT_SECRET || "supersecretkey", 
+    { expiresIn: "30d" }
+  );
+};
+
+const register = async (req, res, next) => {
   try {
-    const user = new User(req.body);
-    await user.save();
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    res.status(201).json({ user, token });
-  } catch (error) {
-    next(error);
+    const { firstName, lastName, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Bu email artıq istifadə olunub" });
+    }
+
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password
+    });
+
+    const token = generateToken(user);
+
+    res.status(201).json({
+      message: "Qeydiyyat uğurludur",
+      token,
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      }
+    });
+  } catch (err) {
+    next(err);
   }
 };
 
-exports.login = async (req, res, next) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
+
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      return res.status(400).json({ message: "Email və ya şifrə yanlışdır" });
     }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    res.json({ user, token });
-  } catch (error) {
-    next(error);
+    if (response.token) {
+        localStorage.setItem('authToken', response.token);
+    }
+    
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Email və ya şifrə yanlışdır" });
+    }
+
+    const token = generateToken(user);
+
+    res.json({
+      message: "Giriş uğurludur",
+      token,
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      }
+    });
+  } catch (err) {
+    next(err);
   }
 };
+
+module.exports = { register, login };

@@ -2,7 +2,7 @@ const Budget = require("../models/Budget");
 
 exports.getBudgets = async (req, res, next) => {
   try {
-    const budgets = await Budget.find({ userId: req.user._id });
+    const budgets = await Budget.find({ user: req.user._id });
     res.json(budgets);
   } catch (err) {
     next(err);
@@ -11,7 +11,7 @@ exports.getBudgets = async (req, res, next) => {
 
 exports.createBudget = async (req, res, next) => {
   try {
-    const budget = await Budget.create({ ...req.body, userId: req.user._id });
+    const budget = await Budget.create({ ...req.body, user: req.user._id });
     res.status(201).json(budget);
   } catch (err) {
     next(err);
@@ -30,7 +30,7 @@ exports.deleteBudget = async (req, res, next) => {
 exports.updateBudget = async (req, res, next) => {
   try {
     const budget = await Budget.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user._id },
+      { _id: req.params.id, user: req.user._id },
       req.body,
       { new: true }
     );

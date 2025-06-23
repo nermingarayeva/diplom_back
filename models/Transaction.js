@@ -44,7 +44,7 @@ const transactionSchema = new mongoose.Schema({
     default: Date.now
   },
   receipt: {
-    type: String, // Cloudinary URL
+    type: String, 
     default: ''
   },
   tags: [{
@@ -79,12 +79,10 @@ const transactionSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for better query performance
 transactionSchema.index({ userId: 1, date: -1 });
 transactionSchema.index({ accountId: 1, date: -1 });
 transactionSchema.index({ category: 1, date: -1 });
 
-// Virtual for formatted amount based on type
 transactionSchema.virtual('formattedAmount').get(function() {
   const sign = this.type === 'expense' ? '-' : '+';
   return `${sign}${this.amount.toFixed(2)}`;

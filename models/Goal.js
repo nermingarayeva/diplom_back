@@ -90,7 +90,7 @@ const goalSchema = new mongoose.Schema({
   },
   color: {
     type: String,
-    default: '#8B5CF6' // Default purple color
+    default: '#8B5CF6'
   },
   icon: {
     type: String,
@@ -100,40 +100,39 @@ const goalSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Virtual for progress percentage
 goalSchema.virtual('progressPercentage').get(function() {
   return Math.min(100, Math.round((this.currentAmount / this.targetAmount) * 100));
 });
 
-// Virtual for remaining amount
 goalSchema.virtual('remainingAmount').get(function() {
   return Math.max(0, this.targetAmount - this.currentAmount);
 });
 
-// Virtual for days remaining
 goalSchema.virtual('daysRemaining').get(function() {
   const now = new Date();
   const timeDiff = this.deadline.getTime() - now.getTime();
   return Math.ceil(timeDiff / (1000 * 3600 * 24));
 });
 
-// Virtual for required daily savings
 goalSchema.virtual('requiredDailySavings').get(function() {
   const remaining = this.remainingAmount;
   const daysLeft = this.daysRemaining;
   return daysLeft > 0 ? Math.round((remaining / daysLeft) * 100) / 100 : 0;
 });
 
-// Virtual for goal status
 goalSchema.virtual('status').get(function() {
-    if (this.isCompleted) return 'completed';
-    
-    const daysLeft = this.daysRemaining;
-    const progress = this.progressPercentage;
-    
-    if (daysLeft < 0) return 'overdue';
-    if (daysLeft <= 30 && progress < 100) return 'urgent';
-    
-    return 'in progress';
-  });
+  if (this.isCompleted) return 'completed';
   
+  const daysLeft = this.daysRemaining;
+  const progress = this.progressPercentage;
+  
+  if (daysLeft < 0) return 'overdue';
+  if (daysLeft <= 30 && progress < 100) return 'urgent';
+  
+  return 'in progress';
+});
+
+goalSchema.set('toJSON', { virtuals: true });
+goalSchema.set('toObject', { virtuals: true });
+
+module.exports = mongoose.model('Goal', goalSchema);

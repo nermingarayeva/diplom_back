@@ -18,9 +18,35 @@ exports.createTransaction = async (req, res, next) => {
   }
 };
 
+exports.updateTransaction = async (req, res, next) => {
+  try {
+    const transaction = await Transaction.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
+      req.body,
+      { new: true, runValidators: true }
+    );
+    
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+    
+    res.json(transaction);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.deleteTransaction = async (req, res, next) => {
   try {
-    await Transaction.findByIdAndDelete(req.params.id);
+    const transaction = await Transaction.findOneAndDelete({ 
+      _id: req.params.id, 
+      user: req.user._id 
+    });
+    
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+    
     res.json({ message: "Transaction deleted" });
   } catch (err) {
     next(err);

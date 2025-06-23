@@ -1,17 +1,16 @@
-const mongoose = require("mongoose");
-const config = require("./config");
+const mongoose = require('mongoose');
 
 const connectDB = async () => {
-  try {
-    await mongoose.connect(config.db.uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("MongoDB bağlantısı uğurla quruldu ✅");
-  } catch (err) {
-    console.error("MongoDB bağlantısında xəta:", err.message);
-    process.exit(1); // server dayansın əgər bağlantı uğursuz olarsa
-  }
+    try {
+        const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://garayevanrmnazmp203:nerminazmp203@cluster0.4wy3y62.mongodb.net/personalfinance';
+        
+        const conn = await mongoose.connect(mongoURI);
+        
+        console.log(` MongoDB qoşuldu: ${conn.connection.host}`);
+    } catch (error) {
+        console.error('MongoDB bağlantısında xəta:', error.message);
+        process.exit(1);
+    }
 };
 
 module.exports = connectDB;

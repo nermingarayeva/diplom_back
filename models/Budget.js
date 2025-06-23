@@ -75,7 +75,6 @@ const budgetSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Virtual fields
 budgetSchema.virtual('remaining').get(function() {
   return Math.max(0, this.amount - this.spent);
 });
@@ -91,7 +90,6 @@ budgetSchema.virtual('status').get(function() {
   return 'on-track';
 });
 
-// Indexes
 budgetSchema.index({ userId: 1, period: 1 });
 budgetSchema.index({ userId: 1, category: 1 });
 

@@ -56,16 +56,15 @@ const accountSchema = new mongoose.Schema({
   },
   color: {
     type: String,
-    default: '#3B82F6' // Default blue color
+    default: '#3B82F6' 
   }
 }, {
   timestamps: true
 });
 
-// Virtual for available balance (for credit accounts)
 accountSchema.virtual('availableBalance').get(function() {
   if (this.type === 'credit') {
-    return this.creditLimit + this.balance; // balance is negative for credit
+    return this.creditLimit + this.balance; 
   }
   return this.balance;
 });
